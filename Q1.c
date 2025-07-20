@@ -17,7 +17,6 @@ int gcdEuclid(int m, int n)
 
     return m;
 }
-
 int gcdConsecutiveIntegerCheck(int m, int n)
 {
     count = 0;
@@ -35,7 +34,6 @@ int gcdConsecutiveIntegerCheck(int m, int n)
 
     return m > n ? m : n;
 }
-
 int modifiedEuclids(int m, int n)
 {
     if (n == 0 || m == 0)
