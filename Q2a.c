@@ -51,16 +51,19 @@ void plotter()
     n = 2;
     while (n <= 1024)
     {
+        // Best Case
         arr = (int *)malloc(n * sizeof(int));
         for (int i = 0; i < n; i++)
             *(arr + i) = 1;
         r = linearSearch(arr, n, 1);
         fprintf(f1, "%d\t%d\n", n, count);
+        // Average Case
         for (int i = 0; i < n; i++)
             *(arr + i) = rand() % n;
         key = rand() % n;
         r = linearSearch(arr, n, key);
         fprintf(f2, "%d\t%d\n", n, count);
+        // Worst Case
         for (int i = 0; i < n; i++)
             *(arr + i) = 0;
         r = linearSearch(arr, n, 1);

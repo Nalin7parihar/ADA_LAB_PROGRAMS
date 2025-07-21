@@ -51,21 +51,39 @@ void worst(int arr[], int beg, int end)
 {
     if (beg < end)
     {
-        int mid = (beg + end) / 2;
-        int i, j, k;
-        int n1 = (mid - beg) + 1;
-        int n2 = end - mid;
-        int a[n1], b[n2];
-        for (i = 0; i < n1; i++)
-            a[i] = arr[(2 * i)];
-        for (j = 0; j < n2; j++)
-            b[j] = arr[(2 * j) + 1];
-        worst(a, beg, mid);
-        worst(b, mid + 1, end);
-        for (i = 0; i < n1; i++)
-            arr[i] = a[i];
-        for (j = i; j < n2; j++)
-            arr[j + 1] = b[j];
+        // Create two temporary arrays
+        int n = end - beg + 1;
+        int a[n / 2 + n % 2];
+        int b[n / 2];
+
+        // Distribute alternate elements of arr into a and b
+        int i_a = 0, i_b = 0;
+        for (int i = beg; i <= end; i++)
+        {
+            if ((i - beg) % 2 == 0)
+            {
+                a[i_a++] = arr[i];
+            }
+            else
+            {
+                b[i_b++] = arr[i];
+            }
+        }
+
+        // Recurse on the two halves
+        worst(a, 0, i_a - 1);
+        worst(b, 0, i_b - 1);
+
+        // Copy the rearranged elements from a and b back into arr
+        int k = beg;
+        for (int i = 0; i < i_a; i++)
+        {
+            arr[k++] = a[i];
+        }
+        for (int i = 0; i < i_b; i++)
+        {
+            arr[k++] = b[i];
+        }
     }
 }
 
