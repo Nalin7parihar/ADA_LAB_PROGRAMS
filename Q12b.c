@@ -1,91 +1,157 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <time.h>
 
-int n, opcount, dist[100][100];
+#define MAX 100
+#define INF 99999 // Represents infinity (no direct path)
 
-int floyds(int adjMat[n][n], int n)
+int graph[MAX][MAX], count = 0;
+
+// Floyd's Algorithm to find shortest paths between all pairs of vertices
+void floyd(int n)
 {
-    opcount = 0;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            if (adjMat[i][j] == -1)
-                dist[i][j] = INT_MAX;
-            else
-                dist[i][j] = adjMat[i][j];
+    count = 0; // Reset count for each run
+
     for (int k = 0; k < n; k++)
+    {
         for (int i = 0; i < n; i++)
         {
-            int tempDist = dist[i][k];
             for (int j = 0; j < n; j++)
             {
-                if (dist[i][j] > tempDist)
+                count++; // Count each comparison operation
+                if (graph[i][k] != INF && graph[k][j] != INF &&
+                    graph[i][k] + graph[k][j] < graph[i][j])
                 {
-                    opcount++;
-                    if (dist[k][j] != INT_MAX && dist[i][j] > tempDist + dist[k][j])
-                    {
-                        dist[i][j] = tempDist + dist[k][j];
-                    }
+                    graph[i][j] = graph[i][k] + graph[k][j];
                 }
             }
         }
+    }
 }
 
+// Interactive tester function for user input
 void tester()
 {
-    printf("Enter the number of nodes: ");
+    int n;
+
+    printf("Enter number of vertices: ");
     scanf("%d", &n);
-    int adjMat[n][n];
-    printf("Enter adjacency matrix: \n");
-    printf("[Note: Enter -1 to indicate infinity]\n");
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            scanf("%d", &adjMat[i][j]);
-    floyds(adjMat, n);
-    printf("Shortest distance between all pair of nodes:\n");
+
+    printf("Enter the cost adjacency matrix (use %d for infinity/no path):\n", INF);
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
-            printf("%d\t", dist[i][j]);
+        {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    printf("\nOriginal cost matrix:\n");
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (graph[i][j] == INF)
+                printf("%8s", "INF");
+            else
+                printf("%8d", graph[i][j]);
+        }
         printf("\n");
     }
+
+    floyd(n);
+
+    printf("\nAll-pairs shortest path matrix:\n");
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (graph[i][j] == INF)
+                printf("%8s", "INF");
+            else
+                printf("%8d", graph[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("Total operations performed: %d\n", count);
 }
 
 void plotter()
 {
-    srand(time(NULL));
-    FILE *fp = fopen("floydes.txt", "w");
-    for (int k = 2; k < 12; k++)
+    FILE *f1 = fopen("FloydBest.txt", "w");
+    FILE *f2 = fopen("FloydWorst.txt", "w");
+
+    if (!f1 || !f2)
     {
-        n = k;
-        int adjMat[n][n];
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                if (i != j)
-                    adjMat[i][j] = rand();
-                else
-                    adjMat[i][j] = 0;
-        floyds(adjMat, n);
-        fprintf(fp, "%d\t%d\n", n, opcount);
+        printf("Error creating files\n");
+        return;
     }
-    fclose(fp);
+
+    for (int n = 2; n <= 10; n++)
+    {
+        // BEST CASE: Already optimal paths (chain graph)
+        // Initialize with INF
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                    graph[i][j] = 0;
+                else if (j == i + 1) // Chain: 0->1->2->...->n-1
+                    graph[i][j] = 1;
+                else
+                    graph[i][j] = INF;
+            }
+        }
+
+        floyd(n);
+        fprintf(f1, "%d\t%d\n", n, count);
+
+        // WORST CASE: Complete graph with equal weights
+        // All paths need to be updated through intermediate vertices
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                    graph[i][j] = 0;
+                else
+                    graph[i][j] = 10; // All edges have same weight
+            }
+        }
+
+        floyd(n);
+        fprintf(f2, "%d\t%d\n", n, count);
+    }
+
+    fclose(f1);
+    fclose(f2);
+    printf("Plot data files created: FloydBest.txt and FloydWorst.txt\n");
 }
 
-void main()
+int main()
 {
-    int ch;
-    printf("Enter\n1.Tester\n2.Plotter\n");
-    scanf("%d", &ch);
-    switch (ch)
+    int choice;
+
+    printf("Floyd's Algorithm - All Pairs Shortest Path\n");
+    printf("1. Interactive Tester\n");
+    printf("2. Generate Plot Data\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+
+    switch (choice)
     {
     case 1:
         tester();
         break;
     case 2:
+        printf("Generating best and worst case data...\n");
         plotter();
         break;
     default:
-        printf("Invalid choice!! ");
+        printf("Invalid choice!\n");
     }
+
+    return 0;
 }

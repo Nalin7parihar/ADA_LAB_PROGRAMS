@@ -111,7 +111,6 @@ void plotter()
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 adjMat[i][j] = (i < j) ? 1 : 0;
-
         opcount = 0;
         checkTopologicalSort(adjMat);
         fprintf(f2, "%d\t%d\n", n, opcount);

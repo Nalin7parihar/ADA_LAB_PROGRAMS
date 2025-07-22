@@ -65,25 +65,28 @@ void plotter()
 
 void tester()
 {
-    int m, n;
     char text[100], pattern[100];
-    printf("Enter the pattern length: ");
-    scanf("%d", &m);
+
     printf("Enter the pattern: ");
-    getchar();
-    fgets(pattern, sizeof(pattern), stdin);
-    pattern[strcspn(pattern, "\n")] = '\0';
-    printf("Enter the text length: ");
-    scanf("%d", &n);
+    scanf("%s", pattern);
+
     printf("Enter the text: ");
-    getchar();
-    fgets(text, sizeof(text), stdin);
-    pattern[strcspn(text, "\n")] = '\0';
-    bool comparisons = stringmatching(text, pattern, n, m);
-     if (comparisons) {
-        printf("\nPattern '%s' matched with Text '%s'\n", pattern, text);
-    } else {
-        printf("\nPattern '%s' doesn't match with the Text '%s'\n", pattern, text);
+    scanf("%s", text);
+
+    int m = strlen(pattern);
+    int n = strlen(text);
+
+    bool result = stringmatching(text, pattern, n, m);
+
+    if (result)
+    {
+        printf("\nPattern '%s' found in text '%s'\n", pattern, text);
+        printf("Number of comparisons: %d\n", count);
+    }
+    else
+    {
+        printf("\nPattern '%s' not found in text '%s'\n", pattern, text);
+        printf("Number of comparisons: %d\n", count);
     }
 }
 

@@ -20,8 +20,8 @@ int bfs(int mat[n][n])
     // Process queue
     while (front != rear)
     {
-        int curr = queue[++front];
-        count++; // Count processed vertices
+        int curr = queue[++front]; // q.pop()
+        count++;                   // Count processed vertices
 
         // For each adjacent vertex, reduce indegree
         for (int i = 0; i < n; i++)

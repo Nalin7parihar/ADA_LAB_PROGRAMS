@@ -32,6 +32,7 @@ void heapify(int *arr, int i, int size)
 
 void heapSort(int *arr, int n)
 {
+    // this creates a max heap
     for (int i = (n / 2) - 1; i >= 0; i--)
     {
         heapify(arr, i, n);
@@ -45,7 +46,6 @@ void heapSort(int *arr, int n)
         int temp = arr[0];
         arr[0] = arr[i];
         arr[i] = temp;
-
         heapify(arr, 0, i);
     }
 }
