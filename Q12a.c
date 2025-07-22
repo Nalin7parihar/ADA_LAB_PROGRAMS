@@ -24,49 +24,40 @@ void warshall(int n)
     }
 }
 
-// Function to plot (generate best and worst case test data)
-void plotter(int c)
+// Function to generate plot data
+void plotter()
 {
-    FILE *f1 = fopen("BestW.txt", "a");
-    FILE *f2 = fopen("WorstW.txt", "a");
+    FILE *f1 = fopen("Warshall.txt", "w");
+
+    if (!f1)
+    {
+        printf("Error creating file\n");
+        return;
+    }
 
     for (int n = 1; n <= 10; n++)
     {
-        // Initialize graph based on case
-        if (c == 1)
+        // Initialize with a simple graph (complexity remains O(n^3))
+        for (int i = 1; i <= n; i++)
         {
-            // Best case: Graph with only self-loops
-            for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= n; j++)
             {
-                for (int j = 1; j <= n; j++)
-                {
-                    if (i == j)
-                        graph[i][j] = 1;
-                    else
-                        graph[i][j] = 0;
-                }
+                if (i == j)
+                    graph[i][j] = 0;                       // No self-loops
+                else if (j == i + 1 || (i == n && j == 1)) // Simple cycle
+                    graph[i][j] = 1;
+                else
+                    graph[i][j] = 0;
             }
         }
-        else if (c == 0)
-        {
-            // Worst case: Complete graph (all edges exist)
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= n; j++)
-                {
-                    graph[i][j] = (i != j) ? 1 : 0; // No self-loops for cleaner worst case
-                }
-            }
-        }
+
         count = 0;
         warshall(n);
-        if (c == 1)
-            fprintf(f1, "%d\t%d\n", n, count);
-        else
-            fprintf(f2, "%d\t%d\n", n, count);
+        fprintf(f1, "%d\t%d\n", n, count);
     }
+
     fclose(f1);
-    fclose(f2);
+    printf("Plot data file created: Warshall.txt\n");
 }
 
 // Interactive tester function for user input
@@ -136,10 +127,8 @@ int main()
         tester();
         break;
     case 2:
-        printf("Generating best and worst case data...\n");
-        for (int i = 0; i < 2; i++)
-            plotter(i);
-        printf("Data files created: BestW.txt and WorstW.txt\n");
+        printf("Generating plot data...\n");
+        plotter();
         break;
     default:
         printf("Invalid choice!\n");

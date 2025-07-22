@@ -79,19 +79,17 @@ void tester()
 
 void plotter()
 {
-    FILE *f1 = fopen("FloydBest.txt", "w");
-    FILE *f2 = fopen("FloydWorst.txt", "w");
+    FILE *f1 = fopen("Floyd.txt", "w");
 
-    if (!f1 || !f2)
+    if (!f1)
     {
-        printf("Error creating files\n");
+        printf("Error creating file\n");
         return;
     }
 
     for (int n = 2; n <= 10; n++)
     {
-        // BEST CASE: Already optimal paths (chain graph)
-        // Initialize with INF
+        // Initialize with a simple graph (complexity remains O(n^3))
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
@@ -107,27 +105,10 @@ void plotter()
 
         floyd(n);
         fprintf(f1, "%d\t%d\n", n, count);
-
-        // WORST CASE: Complete graph with equal weights
-        // All paths need to be updated through intermediate vertices
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
-                if (i == j)
-                    graph[i][j] = 0;
-                else
-                    graph[i][j] = 10; // All edges have same weight
-            }
-        }
-
-        floyd(n);
-        fprintf(f2, "%d\t%d\n", n, count);
     }
 
     fclose(f1);
-    fclose(f2);
-    printf("Plot data files created: FloydBest.txt and FloydWorst.txt\n");
+    printf("Plot data file created: Floyd.txt\n");
 }
 
 int main()
@@ -146,7 +127,7 @@ int main()
         tester();
         break;
     case 2:
-        printf("Generating best and worst case data...\n");
+        printf("Generating plot data...\n");
         plotter();
         break;
     default:
