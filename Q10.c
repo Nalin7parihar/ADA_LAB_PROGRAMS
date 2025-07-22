@@ -8,6 +8,7 @@ int bfs(int mat[n][n])
     int count = 0;
     front = rear = -1;
 
+    // Add all vertices with 0 indegree to queue
     for (int i = 0; i < n; i++)
     {
         if (indeg[i] == 0)
@@ -16,11 +17,13 @@ int bfs(int mat[n][n])
         }
     }
 
+    // Process queue
     while (front != rear)
     {
         int curr = queue[++front];
-        count++;
+        count++; // Count processed vertices
 
+        // For each adjacent vertex, reduce indegree
         for (int i = 0; i < n; i++)
         {
             opcount++;
@@ -33,7 +36,11 @@ int bfs(int mat[n][n])
         }
     }
 
-    return count != n;
+    // Check if cycle exists
+    if (count < n)
+        return 1; // Cycle exists (not all vertices processed)
+    else
+        return 0; // No cycle (all vertices processed)
 }
 
 void tester()
@@ -74,35 +81,62 @@ void tester()
 
 void plotter()
 {
-    FILE *f1 = fopen("srcrmMatTopSort.txt", "w");
+    FILE *f1 = fopen("srcrmMatTopSortBest.txt", "w");
+    FILE *f2 = fopen("srcrmMatTopSortWorst.txt", "w");
 
     for (int k = 1; k <= 10; k++)
     {
         n = k;
         int adjMat[n][n];
 
-        for (int i = 0; i < n; i++)
-            indeg[i] = 0;
-
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                adjMat[i][j] = 0;
-
+        // BEST CASE: Linear DAG (0->1->2->3->...->n-1)
+        // Each vertex has only one outgoing edge, minimal queue operations
         for (int i = 0; i < n; i++)
         {
-            for (int j = i + 1; j < n; j++)
-            {
-                adjMat[i][j] = 1;
-                indeg[j]++;
-            }
+            indeg[i] = 0;
+            for (int j = 0; j < n; j++)
+                adjMat[i][j] = 0;
+        }
+
+        for (int i = 0; i < n - 1; i++)
+        {
+            adjMat[i][i + 1] = 1;
+            indeg[i + 1] = 1;
         }
 
         opcount = 0;
         bfs(adjMat);
         fprintf(f1, "%d\t%d\n", n, opcount);
+
+        // WORST CASE: Complete DAG (every i->j where i<j)
+        // Maximum possible edges, maximum adjacency matrix checks
+        for (int i = 0; i < n; i++)
+            indeg[i] = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i < j)
+                {
+                    adjMat[i][j] = 1;
+                    indeg[j]++;
+                }
+                else
+                {
+                    adjMat[i][j] = 0;
+                }
+            }
+        }
+
+        opcount = 0;
+        bfs(adjMat);
+        fprintf(f2, "%d\t%d\n", n, opcount);
     }
 
     fclose(f1);
+    fclose(f2);
+    printf("Best and worst case data generated successfully.\n");
 }
 
 void main()

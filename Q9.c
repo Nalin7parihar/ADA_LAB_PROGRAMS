@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int n, opcount = 0, top = -1;
+#define MAX 100
 
-int dfs(int mat[n][n], int *vis, int *track, int source, int *stack)
+int n, opcount = 0;
+int stack[MAX], top = -1;
+
+// Returns 1 if cycle exists, 0 otherwise
+int dfs(int mat[n][n], int vis[n], int track[n], int source)
 {
     vis[source] = 1;
     track[source] = 1;
@@ -11,105 +15,111 @@ int dfs(int mat[n][n], int *vis, int *track, int source, int *stack)
     for (int i = 0; i < n; i++)
     {
         opcount++;
-        if (mat[source][i] && track[i] && vis[i])
+        if (mat[source][i] && track[i]) // Cycle detection
         {
             return 1;
         }
 
-        if (mat[source][i] && !vis[i] && dfs(mat, vis, track, i, stack))
+        if (mat[source][i] && !vis[i] && dfs(mat, vis, track, i))
         {
             return 1;
         }
     }
 
-    stack[++top] = source;
+    stack[++top] = source; // Add to topological sort order
     track[source] = 0;
     return 0;
 }
 
-int *checkConnectivity(int mat[n][n])
+// Returns 1 if cycle exists, 0 otherwise
+int checkTopologicalSort(int mat[n][n])
 {
     int vis[n], track[n];
-    int* stack = (int*)malloc(n * sizeof(int));
+    top = -1; // Reset the stack
 
     for (int i = 0; i < n; i++)
     {
         vis[i] = 0;
+        track[i] = 0;
     }
 
     for (int i = 0; i < n; i++)
     {
         if (!vis[i])
         {
-            if (dfs(mat, &vis[0], &track[0], i, stack))
+            if (dfs(mat, vis, track, i))
             {
-                return NULL;
+                return 1; // Cycle exists
             }
         }
     }
 
-    return stack;
+    return 0; // No cycle
 }
 
 void tester()
 {
-    printf("Enter number of vertices :\n");
+    printf("Enter number of vertices:\n");
     scanf("%d", &n);
     int adjMat[n][n];
 
-    printf("Enter the adjacency matrix :\n");
+    printf("Enter the adjacency matrix:\n");
     for (int i = 0; i < n; i++)
-    {
         for (int j = 0; j < n; j++)
-        {
             scanf("%d", &adjMat[i][j]);
-        }
-    }
 
-    int *stack = checkConnectivity(adjMat);
-    if (stack == NULL)
+    if (checkTopologicalSort(adjMat))
     {
-        printf("Cycle exists..Cannot perform topological sorting!!!");
-        exit(0);
+        printf("Cycle exists... Cannot perform topological sorting!\n");
     }
     else
     {
-        printf("Topological sorting order : \n");
-
-        while (top != -1)
+        printf("Topological sorting order:\n");
+        while (top >= 0)
         {
             printf("%d ", stack[top--]);
         }
+        printf("\n");
     }
 }
 
 void plotter()
 {
-    FILE *f1 = fopen("bfsMatTopSort.txt", "w");
+    FILE *f1 = fopen("dfsMatTopSortBest.txt", "w");
+    FILE *f2 = fopen("dfsMatTopSortWorst.txt", "w");
 
     for (int k = 1; k <= 10; k++)
     {
         n = k;
         int adjMat[n][n];
 
+        // BEST CASE: Linear DAG (0->1->2->3->...->n-1)
+        // Each vertex has only one outgoing edge, minimal comparisons
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 adjMat[i][j] = 0;
 
         for (int i = 0; i < n - 1; i++)
-        {
-            for (int j = i + 1; j < n; j++)
-            {
-                adjMat[i][j] = 1;
-            }
-        }
+            adjMat[i][i + 1] = 1;
 
-        opcount = 0, top = -1;
-        checkConnectivity(adjMat);
+        opcount = 0;
+        checkTopologicalSort(adjMat);
         fprintf(f1, "%d\t%d\n", n, opcount);
+
+        // WORST CASE: Complete DAG (every i->j where i<j)
+        // Maximum possible edges, maximum comparisons
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                adjMat[i][j] = (i < j) ? 1 : 0;
+
+        opcount = 0;
+        checkTopologicalSort(adjMat);
+        fprintf(f2, "%d\t%d\n", n, opcount);
     }
 
     fclose(f1);
+    fclose(f2);
+    printf("Best and worst case data generated successfully.\n");
 }
 
 void main()
@@ -117,6 +127,7 @@ void main()
     int choice;
     printf("Enter\n1.Tester\n2.Plotter\n");
     scanf("%d", &choice);
+
     switch (choice)
     {
     case 1:

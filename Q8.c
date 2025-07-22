@@ -45,7 +45,7 @@ void checkConnectivity(int mat[n][n])
             components++;
             if (isTester)
                 printf("\nConnected component %d: ", k++);
-            bfs(mat, &vis[0], i);
+            bfs(mat, vis, i);
         }
     }
 }
@@ -81,31 +81,55 @@ void tester()
 void plotter()
 {
     isTester = 0;
-    FILE *f1 = fopen("bfsadjMat.txt", "w");
+    FILE *f1 = fopen("bfsadjMatBest.txt", "w");
+    FILE *f2 = fopen("bfsadjMatWorst.txt", "w");
+
     for (int k = 1; k <= 10; k++)
     {
         n = k;
         int adjMat[n][n];
 
+        // BEST CASE: Path graph (0-1-2-3-...-n-1)
+        // Minimum edges, single connected component, no cycle
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                adjMat[i][j] = 0;
+
+        for (int i = 0; i < n - 1; i++)
+        {
+            adjMat[i][i + 1] = 1;
+            adjMat[i + 1][i] = 1; // Undirected edge
+        }
+
+        opcount = 0;
+        isCycle = 0;
+        components = 0;
+        checkConnectivity(adjMat);
+        fprintf(f1, "%d\t%d\n", n, opcount);
+
+        // WORST CASE: Complete graph (all vertices connected to all)
+        // Maximum edges, single component, has cycles
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
             {
                 if (i != j)
-                {
                     adjMat[i][j] = 1;
-                }
                 else
-                {
                     adjMat[i][j] = 0;
-                }
             }
         }
+
         opcount = 0;
+        isCycle = 0;
+        components = 0;
         checkConnectivity(adjMat);
-        fprintf(f1, "%d\t%d\n", n, opcount);
+        fprintf(f2, "%d\t%d\n", n, opcount);
     }
+
     fclose(f1);
+    fclose(f2);
+    printf("Best and worst case data generated successfully.\n");
 }
 
 void main()
