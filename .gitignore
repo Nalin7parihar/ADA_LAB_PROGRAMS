@@ -1,3 +1,8 @@
-.qodo
+# Ignore executables
 *.exe
+
+# Ignore all text files by default
 *.txt
+.qodo
+# But specifically track commands.txt
+!commands.txt
